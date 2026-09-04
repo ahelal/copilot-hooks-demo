@@ -1,0 +1,3 @@
+node_modules/
+.copilot-hooks-session-logs/
+web/session-data.js

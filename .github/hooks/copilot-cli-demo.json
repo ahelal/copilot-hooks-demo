@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs sessionStart", "timeoutSec": 5 }
+    ],
+    "userPromptSubmitted": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs userPromptSubmitted", "timeoutSec": 5 }
+    ],
+    "preToolUse": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs preToolUse", "timeoutSec": 5 },
+      { "type": "command", "matcher": "bash|powershell", "command": "node .github/hooks/scripts/pre-tool-policy.mjs", "timeoutSec": 5 }
+    ],
+    "postToolUse": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs postToolUse", "timeoutSec": 5 }
+    ],
+    "agentStop": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs agentStop", "timeoutSec": 5 },
+      { "type": "command", "command": "node .github/hooks/scripts/stop-gate.mjs", "timeoutSec": 120 }
+    ],
+    "sessionEnd": [
+      { "type": "command", "command": "node .github/hooks/scripts/log-event.mjs sessionEnd", "timeoutSec": 5 }
+    ]
+  }
+}

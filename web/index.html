@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copilot Session Observatory</title>
+  <link rel="icon" href="data:,">
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="./styles.css?v=4">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 8.5 9 6l3 2 3-2 4 2.5v7L15 18l-3-2-3 2-4-2.5v-7Z"/><path d="m9 6 3 2 3-2M9 18v-5l3-2 3 2v5"/></svg>
+        </div>
+        <div><strong>Session Observatory</strong><span>Copilot activity explorer · build 4</span></div>
+      </div>
+      <div class="top-actions">
+        <span class="live-indicator"><i></i> Local data</span>
+        <button class="icon-button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2M3 12h2m14 0h2m-3.36-6.64-1.42 1.42M7.78 16.22l-1.42 1.42m0-12.28 1.42 1.42m8.44 9.44 1.42 1.42"/><circle cx="12" cy="12" r="4"/></svg>
+        </button>
+        <button class="icon-button" id="refresh" title="Refresh data" aria-label="Refresh data">
+          <svg viewBox="0 0 24 24"><path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6.7 6.7L4 11m16 2-2.7 4.3A7 7 0 0 1 5.5 15"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input id="session-search" type="search" placeholder="Search every session..." aria-label="Search sessions">
+          <kbd>/</kbd>
+        </div>
+        <div class="sidebar-heading">
+          <span id="session-count">Sessions</span>
+          <select id="session-sort" aria-label="Sort sessions">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="largest">Most activity</option>
+          </select>
+        </div>
+        <div id="session-list" class="session-list" aria-live="polite"></div>
+        <footer class="sidebar-footer">
+          <span id="log-root">—</span>
+          <span id="last-loaded">Not loaded</span>
+        </footer>
+      </aside>
+
+      <section class="workspace">
+        <div id="empty-state" class="state-panel">
+          <div class="spinner"></div>
+          <h1>Reading session history</h1>
+          <p>Parsing transcripts, hook events, metadata, and tool activity.</p>
+        </div>
+
+        <div id="session-view" hidden>
+          <section class="hero">
+            <div class="eyebrow"><span id="source-badge">SESSION</span><span id="session-time">—</span></div>
+            <h1 id="session-title">Session</h1>
+            <p id="session-preview"></p>
+            <div class="hero-meta" id="hero-meta"></div>
+          </section>
+
+          <nav class="tabs" aria-label="Session views">
+            <button class="tab active" data-tab="overview">Overview</button>
+            <button class="tab" data-tab="conversation">Conversation</button>
+            <button class="tab" data-tab="timeline">Timeline</button>
+            <button class="tab" data-tab="raw">Raw records</button>
+          </nav>
+
+          <div id="tab-overview" class="tab-panel active">
+            <div id="metric-grid" class="metric-grid"></div>
+            <div class="dashboard-grid">
+              <section class="card span-2">
+                <div class="card-heading"><div><span class="kicker">ACTIVITY</span><h2>Session pulse</h2></div><span id="duration-label" class="subtle"></span></div>
+                <div id="activity-chart" class="activity-chart"></div>
+              </section>
+              <section class="card">
+                <div class="card-heading"><div><span class="kicker">TOOLS</span><h2>Tool calls</h2></div></div>
+                <div id="tool-chart" class="rank-list"></div>
+              </section>
+              <section class="card">
+                <div class="card-heading"><div><span class="kicker">RECORDS</span><h2>Event mix</h2></div></div>
+                <div id="type-chart" class="rank-list"></div>
+              </section>
+              <section class="card span-2">
+                <div class="card-heading"><div><span class="kicker">HEALTH</span><h2>Session diagnostics</h2></div></div>
+                <div id="diagnostics" class="diagnostics"></div>
+              </section>
+            </div>
+          </div>
+
+          <div id="tab-conversation" class="tab-panel">
+            <div class="panel-toolbar">
+              <div><strong>Conversation</strong><span id="conversation-count" class="subtle"></span></div>
+              <label class="switch"><input id="show-reasoning" type="checkbox"><span></span> Show reasoning</label>
+            </div>
+            <div id="conversation" class="conversation"></div>
+          </div>
+
+          <div id="tab-timeline" class="tab-panel">
+            <div class="panel-toolbar">
+              <div class="search-wrap compact">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <input id="record-search" type="search" placeholder="Search this timeline...">
+              </div>
+              <select id="type-filter" aria-label="Filter record type"><option value="">All types</option></select>
+              <span id="timeline-count" class="subtle"></span>
+            </div>
+            <div id="timeline" class="timeline"></div>
+          </div>
+
+          <div id="tab-raw" class="tab-panel">
+            <div class="panel-toolbar">
+              <div><strong>Raw record explorer</strong><span class="subtle">Lossless JSON view</span></div>
+              <div class="segmented">
+                <button class="active" data-raw-source="records">Transcript</button>
+                <button data-raw-source="hooks">Hooks</button>
+                <button data-raw-source="metadata">Metadata</button>
+              </div>
+            </div>
+            <div id="raw-records" class="raw-records"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="./session-data.js?v=3"></script>
+  <script src="./observatory-v4.js"></script>
+</body>
+</html>

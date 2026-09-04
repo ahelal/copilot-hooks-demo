@@ -1,0 +1,6 @@
+{
+  "chat.hookFilesLocations": {
+    ".github/hooks": false,
+    ".vscode/hooks": true
+  }
+}

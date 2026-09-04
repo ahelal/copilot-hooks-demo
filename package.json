@@ -1,0 +1,12 @@
+{
+  "name": "copilot-hooks-cli-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.7.1",
+  "scripts": {
+    "test": "node --test",
+    "viewer": "node web/server.mjs",
+    "reset": "rm -rf .copilot-hooks-session-logs"
+  }
+}
